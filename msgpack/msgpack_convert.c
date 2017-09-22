@@ -1,5 +1,5 @@
 #include "php.h"
-
+#if PHP_MAJOR_VERSION == 7
 #include "php_msgpack.h"
 #include "msgpack_convert.h"
 #include "msgpack_errors.h"
@@ -289,11 +289,9 @@ int msgpack_convert_object(zval *return_value, zval *tpl, zval *value) /* {{{ */
         zend_fcall_info_cache fcc;
 
         fci.size = sizeof(fci);
-#if PHP_VERSION_ID < 70100
         fci.function_table = EG(function_table);
-        fci.symbol_table = NULL;
-#endif
         fci.function_name = function_name;
+        fci.symbol_table = NULL;
         fci.object = Z_OBJ_P(return_value);
         fci.retval = &retval;
         fci.param_count = 0;
@@ -302,12 +300,7 @@ int msgpack_convert_object(zval *return_value, zval *tpl, zval *value) /* {{{ */
 
         fcc.initialized = 1;
         fcc.function_handler = ce->constructor;
-
-#if PHP_VERSION_ID < 70100
         fcc.calling_scope = EG(scope);
-#else
-        fcc.calling_scope = zend_get_executed_scope();
-#endif
         fcc.called_scope = Z_OBJCE_P(return_value);
         fcc.object = Z_OBJ_P(return_value);
 
@@ -468,3 +461,4 @@ int msgpack_convert_template(zval *return_value, zval *tpl, zval *value) /* {{{ 
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+#endif

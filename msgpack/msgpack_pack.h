@@ -18,6 +18,6 @@ enum msgpack_serialize_type
 
 void msgpack_serialize_var_init(msgpack_serialize_data_t *var_hash);
 void msgpack_serialize_var_destroy(msgpack_serialize_data_t *var_hash);
-void msgpack_serialize_zval(smart_str *buf, zval *val, HashTable *var_hash);
+void msgpack_serialize_zval(instead_smart *buf, zval *val, HashTable *var_hash);
 
 #endif

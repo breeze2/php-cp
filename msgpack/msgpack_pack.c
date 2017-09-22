@@ -1,5 +1,6 @@
 
 #include "php.h"
+#if PHP_MAJOR_VERSION == 7
 #include "php_ini.h"
 #include "Zend/zend_smart_str.h"
 #include "ext/standard/php_incomplete_class.h"
@@ -10,13 +11,21 @@
 #include "msgpack_errors.h"
 
 #include "msgpack/pack_define.h"
-#define msgpack_pack_user smart_str*
+#define msgpack_pack_user instead_smart*
 #define msgpack_pack_inline_func(name) \
     static inline void msgpack_pack ## name
 #define msgpack_pack_inline_func_cint(name) \
     static inline void msgpack_pack ## name
-#define msgpack_pack_append_buffer(user, buf, len) \
-    smart_str_appendl(user, (const void*)buf, len)
+#define msgpack_pack_append_buffer(user, buf, n) \
+     do{instead_smart *__dest = (instead_smart*) (user);\
+            if(__dest->max>=__dest->len+(n)){\
+            memcpy(__dest->addr+__dest->len, (const void*)(buf), (n));\
+            __dest->len+=(n);\
+        }else{\
+            __dest->exceed=1; \
+        }\
+     }while(0)
+
 
 #include "msgpack/pack_template.h"
 
@@ -108,13 +117,13 @@ void msgpack_serialize_var_destroy(msgpack_serialize_data_t *var_hash) /* {{{ */
 }
 /* }}} */
 
-inline static void msgpack_serialize_string(smart_str *buf, char *str, size_t len) /* {{{ */ {
+inline static void msgpack_serialize_string(instead_smart *buf, char *str, size_t len) /* {{{ */ {
 	msgpack_pack_raw(buf, len);
 	msgpack_pack_raw_body(buf, str, len);
 }
 /* }}} */
 
-static inline void msgpack_serialize_class(smart_str *buf, zval *val, zval *retval_ptr, HashTable *var_hash, char *class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
+static inline void msgpack_serialize_class(instead_smart *buf, zval *val, zval *retval_ptr, HashTable *var_hash, char *class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
 	uint32_t count;
 	HashTable *ht = HASH_OF(retval_ptr);
 
@@ -199,7 +208,7 @@ static inline void msgpack_serialize_class(smart_str *buf, zval *val, zval *retv
 }
 /* }}} */
 
-static inline void msgpack_serialize_array(smart_str *buf, zval *val, HashTable *var_hash, zend_bool object, char* class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
+static inline void msgpack_serialize_array(instead_smart *buf, zval *val, HashTable *var_hash, zend_bool object, char* class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
 	uint32_t n;
 	HashTable *ht;
 	zend_bool hash = 1;
@@ -326,7 +335,7 @@ static inline void msgpack_serialize_array(smart_str *buf, zval *val, HashTable 
 }
 /* }}} */
 
-static inline void msgpack_serialize_object(smart_str *buf, zval *val, HashTable *var_hash, char* class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
+static inline void msgpack_serialize_object(instead_smart *buf, zval *val, HashTable *var_hash, char* class_name, uint32_t name_len, zend_bool incomplete_class) /* {{{ */ {
 	int res;
 	zval retval, fname;
 	zval *val_noref;
@@ -403,7 +412,7 @@ static inline void msgpack_serialize_object(smart_str *buf, zval *val, HashTable
 }
 /* }}} */
 
-void msgpack_serialize_zval(smart_str *buf, zval *val, HashTable *var_hash) /* {{{ */ {
+void msgpack_serialize_zval(instead_smart *buf, zval *val, HashTable *var_hash) /* {{{ */ {
 	zval *val_noref;
 	zend_long var_already;
 
@@ -505,3 +514,4 @@ void msgpack_serialize_zval(smart_str *buf, zval *val, HashTable *var_hash) /* {
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+#endif

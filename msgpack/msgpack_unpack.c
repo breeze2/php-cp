@@ -1,4 +1,5 @@
 #include "php.h"
+#if PHP_MAJOR_VERSION == 7
 #include "php_ini.h"
 #include "ext/standard/php_incomplete_class.h"
 
@@ -11,7 +12,7 @@
 
 typedef struct {
     zval data[VAR_ENTRIES_MAX];
-    zend_long used_slots;
+    int32_t used_slots;
     void *next;
 } var_entries;
 
@@ -92,13 +93,13 @@ static zval *msgpack_var_push(msgpack_unserialize_data_t *var_hashx) /* {{{ */ {
 /* }}} */
 
 static inline void msgpack_var_replace(zval *old, zval *new) /* {{{ */ {
-	if (!MSGPACK_IS_STACK_VALUE(old) && Z_TYPE_P(old) != IS_REFERENCE) {
+	if (!MSGPACK_IS_STACK_VALUE(old)) {
 		ZVAL_INDIRECT(old, new);
 	}
 }
 /* }}} */
 
-static zval *msgpack_var_access(msgpack_unserialize_data_t *var_hashx, zend_long id) /* {{{ */ {
+static zval *msgpack_var_access(msgpack_unserialize_data_t *var_hashx, long id) /* {{{ */ {
     var_entries *var_hash = var_hashx->first;
 
     while (id >= VAR_ENTRIES_MAX && var_hash && var_hash->used_slots == VAR_ENTRIES_MAX) {
@@ -280,7 +281,7 @@ void msgpack_unserialize_var_init(msgpack_unserialize_data_t *var_hashx) /* {{{ 
 /* }}} */
 
 void msgpack_unserialize_var_destroy(msgpack_unserialize_data_t *var_hashx, zend_bool err) /* {{{ */ {
-	zend_long i;
+	size_t i;
     void *next;
     var_entries *var_hash = var_hashx->first;
 
@@ -746,3 +747,4 @@ int msgpack_unserialize_map_item(msgpack_unserialize_data *unpack, zval **contai
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+#endif
