@@ -3,7 +3,6 @@
 #define MSGPACK_PACK_H
 
 #include "ext/standard/php_var.h"
-#include "../php_connect_pool.h"
 
 typedef HashTable* msgpack_serialize_data_t;
 
@@ -17,8 +16,8 @@ enum msgpack_serialize_type
     MSGPACK_SERIALIZE_TYPE_OBJECT_REFERENCE,
 };
 
-void msgpack_serialize_zval(
-//    smart_str *buf, zval *val, HashTable *var_hash TSRMLS_DC);
-instead_smart *buf, zval *val, HashTable *var_hash TSRMLS_DC);
+void msgpack_serialize_var_init(msgpack_serialize_data_t *var_hash);
+void msgpack_serialize_var_destroy(msgpack_serialize_data_t *var_hash);
+void msgpack_serialize_zval(smart_str *buf, zval *val, HashTable *var_hash);
 
 #endif

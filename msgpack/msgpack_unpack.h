@@ -16,7 +16,13 @@ typedef enum
     MSGPACK_UNPACK_PARSE_ERROR = -1,
 } msgpack_unpack_return;
 
-typedef struct php_unserialize_data msgpack_unserialize_data_t;
+typedef struct _msgpack_unserialize_data {
+       void *first;
+       void *last;
+       void *first_dtor;
+       void *last_dtor;
+       HashTable *allowed_classes;
+} msgpack_unserialize_data_t;
 
 typedef struct {
     zval *retval;
@@ -27,8 +33,7 @@ typedef struct {
 } msgpack_unserialize_data;
 
 void msgpack_unserialize_var_init(msgpack_unserialize_data_t *var_hashx);
-void msgpack_unserialize_var_destroy(
-    msgpack_unserialize_data_t *var_hashx, zend_bool err);
+void msgpack_unserialize_var_destroy(msgpack_unserialize_data_t *var_hashx, zend_bool err);
 
 void msgpack_unserialize_init(msgpack_unserialize_data *unpack);
 
@@ -56,6 +61,9 @@ int msgpack_unserialize_nil(msgpack_unserialize_data *unpack, zval **obj);
 int msgpack_unserialize_true(msgpack_unserialize_data *unpack, zval **obj);
 int msgpack_unserialize_false(msgpack_unserialize_data *unpack, zval **obj);
 int msgpack_unserialize_raw(
+    msgpack_unserialize_data *unpack, const char* base, const char* data,
+    unsigned int len, zval **obj);
+int msgpack_unserialize_bin(
     msgpack_unserialize_data *unpack, const char* base, const char* data,
     unsigned int len, zval **obj);
 int msgpack_unserialize_array(
@@ -118,6 +126,8 @@ static inline msgpack_unpack_object template_callback_root(unpack_user* user)
     msgpack_unserialize_false(user, obj)
 #define template_callback_raw(user, base, data, len, obj) \
     msgpack_unserialize_raw(user, base, data, len, obj)
+#define template_callback_bin(user, base, data, len, obj) \
+    msgpack_unserialize_bin(user, base, data, len, obj)
 #define template_callback_array(user, count, obj) \
     msgpack_unserialize_array(user, count, obj)
 #define template_callback_array_item(user, container, obj) \

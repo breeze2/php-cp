@@ -685,7 +685,7 @@ msgpack_pack_inline_func(_false)(msgpack_pack_user x)
 
 msgpack_pack_inline_func(_array)(msgpack_pack_user x, unsigned int n)
 {
-	if(n < 16) {
+	if (n < 16) {
 		unsigned char d = 0x90 | n;
 		msgpack_pack_append_buffer(x, &d, 1);
 	} else if(n < 65536) {
@@ -727,9 +727,14 @@ msgpack_pack_inline_func(_map)(msgpack_pack_user x, unsigned int n)
 
 msgpack_pack_inline_func(_raw)(msgpack_pack_user x, size_t l)
 {
+	TSRMLS_FETCH();
 	if(l < 32) {
 		unsigned char d = 0xa0 | l;
 		msgpack_pack_append_buffer(x, &TAKE8_8(d), 1);
+	} else if (l < 256 && MSGPACK_G(use_str8_serialization)) {
+		unsigned char buf[2];
+		buf[0] = 0xd9; buf[1] = (uint8_t)l;
+		msgpack_pack_append_buffer(x, buf, 2);
 	} else if(l < 65536) {
 		unsigned char buf[3];
 		buf[0] = 0xda; _msgpack_store16(&buf[1], (uint16_t)l);
