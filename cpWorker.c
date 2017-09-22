@@ -82,11 +82,9 @@ static int cpWorker_loop(int worker_id, int group_id)
             continue;
         }
         CPWG.working = 1;
-#if PHP_MAJOR_VERSION < 7
+
         php_msgpack_unserialize(ret_value, sm_obj->mem, CPWG.event.len);
-#else
-        php_swoole_unserialize(sm_obj->mem, CPWG.event.len, ret_value, NULL);
-#endif
+
         worker_onReceive(ret_value);
         CPWG.working = 0;
     }

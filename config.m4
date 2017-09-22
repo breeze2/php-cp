@@ -51,7 +51,6 @@ AC_TRY_COMPILE([#include "$phpincludedir/main/php_config.h"], [
                     msgpack/msgpack_pack.c\
                     msgpack/msgpack_unpack.c\
                     msgpack/msgpack_convert.c\
-                    msgpack7/swoole_serialize.c\
                     , $ext_shared)
   PHP_ADD_INCLUDE([$ext_srcdir/include])
 fi

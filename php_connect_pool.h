@@ -87,11 +87,7 @@
 #include <ext/pdo/php_pdo_driver.h>
 #include <ext/standard/php_var.h>
 #include <zend_exceptions.h>
-#if PHP_MAJOR_VERSION < 7
 #include "msgpack/php_msgpack.h"
-#else
-#include "msgpack7/php_swoole_serialize.h"
-#endif
 #ifdef ZTS
 #include "TSRM.h"
 #endif

@@ -433,7 +433,7 @@ int CP_INTERNAL_SERIALIZE_SEND_MEM(zval *send_data, uint8_t __type)
 {
     cpShareMemory *sm_obj = &(CPGS->G[CPWG.gid].workers[CPWG.id].sm_obj);
     int real_len = 0;
-#if PHP_MAJOR_VERSION < 7
+
     instead_smart dest;
     dest.len = 0;
     dest.addr = sm_obj->mem;
@@ -446,17 +446,7 @@ int CP_INTERNAL_SERIALIZE_SEND_MEM(zval *send_data, uint8_t __type)
         CP_INTERNAL_ERROR_SEND("data is exceed,increase max_read_len");
         return SUCCESS;
     }
-#else
-    zend_string * zstr = php_swoole_serialize(send_data);
-    if (zstr->len >= CPGS->max_buffer_len)
-    {
-        CP_INTERNAL_ERROR_SEND("data is exceed,increase max_read_len");
-        return SUCCESS;
-    }
-    real_len = zstr->len;
-    memcpy(sm_obj->mem, zstr->val, zstr->len);
-    zend_string_release(zstr);
-#endif
+
     cpWorkerInfo worker_event;
     worker_event.len = real_len;
     worker_event.type = __type;

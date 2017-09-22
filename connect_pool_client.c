@@ -282,7 +282,7 @@ int CP_CLIENT_SERIALIZE_SEND_MEM(zval *send_data, cpClient *cli)
     int pipe_fd_write = get_writefd(CONN(cli)->worker_id);
     int real_len = 0;
     void* attach_addr = get_attach_buf(CONN(cli)->worker_id, CPGS->max_buffer_len, CPGS->G[CONN(cli)->group_id].workers[CONN(cli)->worker_index].sm_obj.mmap_name);
-#if PHP_MAJOR_VERSION < 7
+
     instead_smart dest;
     dest.len = 0;
     dest.addr = attach_addr;
@@ -295,16 +295,6 @@ int CP_CLIENT_SERIALIZE_SEND_MEM(zval *send_data, cpClient *cli)
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "data is exceed,increase max_read_len Error: %s [%d] ", strerror(errno), errno);
         return FAILURE;
     }
-#else
-    zend_string * zstr = php_swoole_serialize(send_data);
-    if (zstr->len >= CPGS->max_buffer_len)
-    {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "data is exceed,increase max_read_len Error: %s [%d] ", strerror(errno), errno);
-        return FAILURE;
-    }
-    memcpy(attach_addr, zstr->val, zstr->len);
-    zend_string_release(zstr);
-#endif
 
     cpWorkerInfo worker_event;
     worker_event.len = real_len;
@@ -491,11 +481,9 @@ static CPINLINE int cli_real_recv(cpClient *cli, int async)
 
     log_increase_size(event.len, cli);
     void * buf = get_attach_buf(CONN(cli)->worker_id, CPGS->max_buffer_len, CPGS->G[CONN(cli)->group_id].workers[CONN(cli)->worker_index].sm_obj.mmap_name);
-#if PHP_MAJOR_VERSION < 7
+
     php_msgpack_unserialize(ret_value, buf, event.len);
-#else
-    php_swoole_unserialize(buf, event.len, ret_value, NULL);
-#endif
+
     RecvData.type = event.type;
     RecvData.ret_value = ret_value;
     return SUCCESS;
