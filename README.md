@@ -6,7 +6,7 @@ swoole/php-cp-1.5.0针对php7编译时使用了[swoole_serialize](https://github
 
 本分支主要工作是将swoole_serialize替换成[msgpack-php](https://github.com/msgpack/msgpack-php)。后续swoole/php-cp若是修复了序列化问题，请忽略本分支。
 
-本分支只在php7环境下编译测试，php5请使用swoole/php-cp。
+本分支只在php7环境下编译测试，php5环境请使用[swoole/php-cp](https://github.com/swoole/php-cp)。
 
 ## php-cp(php-connect-pool),redis和pdo的本地代理 [![Build Status](https://secure.travis-ci.org/swoole/php-cp.svg?branch=master)](http://travis-ci.org/swoole/php-cp)
 
