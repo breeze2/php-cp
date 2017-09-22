@@ -1,3 +1,10 @@
+## 说明
+
+此分支由[swoole/php-cp-1.5.0](https://github.com/swoole/php-cp/tree/1.5.0)派生。
+swoole/php-cp-1.5.0针对php7编译时使用了[swoole_serialize](https://github.com/swoole/swoole_serialize)做变量序列化，但是pdo_connect_pool_PDOStatement::setFetchMode(PDO::FETCH_OBJ)时worker会崩溃退出（应该是对象序列化出问题）。
+本分支主要工作是将swoole_serialize替换成[msgpack-php](https://github.com/msgpack/msgpack-php)。后续swoole/php-cp若是修复了序列化问题，请忽略本分支。
+本分支只在php7环境下编译测试，php5请使用swoole/php-cp。
+
 ## php-cp(php-connect-pool),redis和pdo的本地代理 [![Build Status](https://secure.travis-ci.org/swoole/php-cp.svg?branch=master)](http://travis-ci.org/swoole/php-cp)
 
 [中文简介] http://blog.sina.com.cn/s/blog_9eaa0f400102v9fd.html
