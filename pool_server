@@ -81,7 +81,9 @@ switch ($cmd) {
     case "stop":
         exit($func_stop($pid) ? $exit_code_ok : $exit_code_general);
     case "restart":
-        exit($func_stop($pid) && sleep(1) && $func_start($config_file) ? $exit_code_ok : $exit_code_general);
+        $func_stop($pid) || exit($exit_code_general);
+        sleep(1);
+        exit($func_start($config_file) ? $exit_code_ok : $exit_code_general);
     default:
         echo $usage;
         exit($exit_code_general);
